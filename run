@@ -1,0 +1,32 @@
+#!/bin/csh
+
+# to clean remaining semaphore and shared memory ids
+#~/bin/memclean
+
+setenv PFSHAREDSIZE 768000000
+setenv PFSHAREDBASE 0x20000000
+#setenv PFSEMASIZE 1024000
+
+setenv LD_LIBRARY_PATH libs
+
+#Set here the path to where the Data dir is
+set    PFTOP = ./DATA
+setenv PFPATH $PFTOP/MODELS':'$PFTOP/SCENES':'$PFTOP/SOUNDS':'$PFTOP/TEXTURES
+
+setenv XP_SOUND_PATH $PFTOP/SOUNDS
+
+setenv XP_DEBUG 
+#if not defined it crashes because off gdrett hacking around
+setenv XP_NO_STATS  
+
+# soundserver
+SRC/bin.IRIX/snerd &
+
+#path to xp
+SRC/bin.IRIX/xp Main.scene
+
+/sbin/killall snerd
+/sbin/killall xp
+
+/bin/rm -f core
+/bin/rm -f /usr/tmp/pfutil*

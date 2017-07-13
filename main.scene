@@ -1,0 +1,279 @@
+# ==========================
+# Virtual Playground
+# Maria Roussou, 2004
+# ==========================
+
+light(position = "1 1 1", ambient="0 0 0", diffuse = "1 1 1",)
+light(position = "-1 -1 1", ambient="0 0 0", diffuse = "1 1 1")
+light(position = "0 1 0", ambient="0 0 0", diffuse = "1 1 1")
+
+
+sobject (file=Skydome.pfb, scale=300, translate="0 0 -0.1", rotate="90 0 0")
+sobject (file=Grass.pfb, scale=300, translate="0 0 0.3", rotate="90 0 0")
+
+
+# --- Keyframe for top-down view
+keyframe (file=smallkeypath2, loop=0, initstate=off, name=small_keyframe2)
+{
+	keyframe (file=smallkeypath, loop=0, initstate=off, name=small_keyframe)
+	{
+		scene(file=Objects_global.scene)
+
+		switch (name=objsinitial, initval=on)
+		{
+			transform(scale=1) 
+			{
+				scene(file=Objects_initial.scene)
+			}
+		}
+
+		switch (name=objsfinal, initval=off)
+	 	{
+	 		transform (scale=1)
+			{   
+  				scene(file=Objects_dynamic.scene)
+				scene(file=Digits.scene)
+	 		}
+		}
+
+		switch(name=cubeswitch, initval=off, 
+			eventMessage = "switchon, pick_sound, play",
+			eventMessage = "switchon, pick_sound, stop, 2",
+			eventMessage = "switchoff, drop_sound, play",
+			eventMessage = "switchoff, drop_sound, stop, 2")
+		{
+			scene (file=Cubes.scene)
+			object(file=beam.pfb, attach=on) 	
+		}
+
+
+	# --- vpplane. Change xdim,ydim to make plane smaller
+	#vpplane(xdim=33.25, ydim=16.625, digitnode=digit_nrselect, name=vpplane1,
+
+	vpplane(xdim=20, ydim=10, digitnode=digit_nrselect, name=vpplane1,
+        	cubeswitch1=yellow_switch, thingswitch1=yellowthing_switch, thingtrans1=yellowthing_translator,
+	        cubeswitch2=orange_switch, thingswitch2=orangething_switch, thingtrans2=orangething_translator,
+        	cubeswitch3=blue_switch, thingswitch3=bluething_switch, thingtrans3=bluething_translator,
+	        cubeswitch4=grey_switch, thingswitch4=greything_switch, thingtrans4=greything_translator,
+	        cubeswitch5=red_switch, thingswitch5=redthing_switch, thingtrans5=redthing_translator,
+        	cubeswitch6=green_switch, thingswitch6=greenthing_switch, thingtrans6=greenthing_translator,
+
+		#forbidden1 is footpath
+		eventMessage = "forbidden1, forbidden_on_footpath_sound, play",
+		eventMessage = "forbidden1, forbidden_on_footpath_sound, stop, 2",
+
+		#forbidden2 is park bench
+		eventmessage = "forbidden2, forbidden_onbench_sound, play",
+		eventmessage = "forbidden2, forbidden_onbench_sound, stop, 2",  
+
+		#forbidden3 is fence
+		eventmessage = "forbidden3, forbidden_next2fence_sound, play",
+		eventmessage = "forbidden3, forbidden_next2fence_sound, stop, 2",
+
+		#tile is occupied
+		#eventmessage = "occupied, %world, sky 1 1 0",
+		eventmessage = "occupied, forbidden_adjacent_block_sound, play",
+		eventmessage = "occupied, forbidden_adjacent_block_sound, stop, 2",
+
+		#adjacent to tile of different colour
+		eventmessage = "adjacent, forbidden_adjacent_block_sound, play",
+		eventmessage = "adjacent, forbidden_adjacent_block_sound, stop, 2",
+
+		#everything is done!
+		eventMessage = "finished, global_activity_time, log Total-activity-time-elapsed",
+		eventmessage = "finished, kids_clapping_snd, play",
+		eventmessage = "finished, kids_clapping_snd, stop, 6",
+		eventmessage = "finished, roundabout_spinner, start",
+		eventmessage = "finished, static_swing_switch, off",
+		eventmessage = "finished, moving_swing_switch, on",
+		eventmessage = "finished, move_left_swing, swing",
+		eventmessage = "finished, move_middle_swing, swing",
+		eventmessage = "finished, move_right_swing, swing",
+		eventmessage = "finished, fountain_switch, on",
+		eventmessage = "finished, fountain_snd, play, 1") 
+#)
+		
+		#eventMessage = "finished, vpplane1, disable")
+
+	} #end keyframe for plane view
+} #end keyframe
+
+
+# --- Switch to start water fountain
+		switch (name=fountain_switch, initval=off)
+	 	{ 
+			scene(file=Fountain.scene)
+		}
+
+
+# --- Keyframe for initial entrance into path
+keyframe(file=path_initial.path, duration=10, name=initialpath)
+
+
+# --- Keyframe for tour of playground path
+#keyframe(file=path_tour.path, duration=35, name=tourpath)
+
+
+# --- Triggers to setup world
+wandtrigger (sphere ="0 0 0 2000", initstate=on,
+	eventmessage = "enter, %world, clip 0.1 2000",
+	eventMessage = "enter, ambient_bird_sound, play",
+	eventmessage = "enter, %navigator, position 0.125 12.236 -0.100 180",
+	eventmessage = "enter, initialpath, start",
+	eventmessage = "enter, %navigator, attach initialpath",
+	eventmessage = "enter, %navigator, release, 10",
+	eventMessage = "enter, %navigator, speed 0, 10.5",
+# - reach owl and start narrative
+	eventMessage = "enter, owl_not_talking_switch, off, 10.3",
+	eventMessage = "enter, owl_01_welcome_sound, play, 10.5",
+
+# - uncomment the following to tour user around playground while owl is talking
+#	eventmessage = "enter, tourpath, start, 11",
+#	eventmessage = "enter, %navigator, attach tourpath, 11",
+#	eventmessage = "enter, %navigator, release, 42",
+#	eventMessage = "enter, %navigator, speed 0, 42.5",
+
+# - return to owl again
+	eventmessage = "enter, owl_talking, stop, 31.2",
+	eventmessage = "enter, owl_not_talking_switch, on, 31.2",
+	eventmessage = "enter, owl_not_talking_switch, off, 31.8",
+	eventmessage = "enter, owl_talking, start, 31.8",
+	eventMessage = "enter, owl_02_sound, play, 31.8",
+	eventmessage = "enter, owl_talking, stop, 43",
+	eventmessage = "enter, owl_not_talking_switch, on, 43",
+	eventmessage = "enter, owl_not_talking_switch, off, 43.8",
+	eventmessage = "enter, owl_talking, start, 43.8",
+       	eventMessage = "enter, owl_03_sound, play, 43.8",
+	eventmessage = "enter, owl_talking, stop, 56.31",
+	eventmessage = "enter, owl_not_talking_switch, on, 56.31",
+       	eventMessage = "enter, initialtrigger, enable, 56")
+
+# - wait for red, button1, then switch to construction mode 
+wandtrigger (sphere ="0 0 0 1000", name=toggleview_trigger,
+	eventmessage = "button1, vpplane1, toggleView")
+
+wandtrigger (sphere ="0 0 0 1000", name=initialtrigger, initstate=off,
+	eventmessage = "button1, initialtrigger, disable",
+	eventmessage = "button1, objsfinal, toggle",
+	eventmessage = "button1, objsinitial, toggle",
+	eventmessage = "button1, cubeswitch, toggle",
+	eventMessage = "button1, owl_04_sound, play, 0.5",
+	eventmessage = "button1, owl_talking, start, 0.5",
+	eventmessage = "button1, owl_not_talking_switch, off, 0.5",
+	eventMessage = "button1, owl_06_sound, play, 31",
+	eventmessage = "button1, owl_not_talking_switch, on, 42",
+	eventmessage = "button1, initialbirdviewtrigger, enable, 40.5")
+
+# - wait for blue, button3, then switch to topview
+wandtrigger (sphere ="0 0 0 1000", name=initialbirdviewtrigger, initstate=off,
+	eventmessage = "button3, initialbirdviewtrigger, disable",
+	eventmessage = "button3, initialbirdview2trigger, enable")
+
+wandtrigger (sphere ="0 0 0 1000", name=initialbirdview2trigger, initstate=off,
+	eventmessage = "button3, initialbirdview2trigger, disable",
+	eventmessage = "button3, owl_not_talking_switch, off, 1.2",
+	eventMessage = "button3, owl_07_sound, play, 1.2", 
+	eventMessage = "button3, owl_05a_sound, play, 29.6",
+	eventMessage = "button3, owl_05b_sound, play, 45.7",
+	eventMessage = "button3, owl_08_sound, play, 63.1",
+	eventMessage = "button3, owl_09_sound, play, 79.2",
+# to enable navigation. See view-ground_trigger below...
+#	eventMessage = "button3, %navigator, speed 1.5, 95",
+	eventMessage = "button3, owl_11_sound, play, 92.7",
+	eventmessage = "button3, owl_not_talking_switch, on, 95.1",
+  	eventmessage = "button3, owl_talking, stop, 95.1")
+	#eventmessage = "button3, %world, playback")
+	#eventmessage = "button3, %world, record")
+#DIMI
+
+
+# --- Triggers for getting to plane view and back
+wandtrigger (sphere ="0 0 0 1000", initstate=on, name=view-high_trigger,
+	eventmessage = "button3, go_high_sound, play",
+	eventmessage = "button3, go_high_sound, stop, 2",
+        eventmessage = "button3, small_keyframe, on",
+        eventmessage = "button3, small_keyframe2, on",
+        eventmessage = "button3, small_keyframe, start, 0.1",
+        eventmessage = "button3, small_keyframe2, start, 0.1",
+	eventmessage = "button3, small_keyframe2, gotouser 1, 0.5",
+        eventmessage = "button3, view-high_trigger, disable, 2",
+        eventmessage = "button3, view-ground_trigger, enable, 2",
+        eventmessage = "button3, %navigator, fly on",
+        eventmessage = "button3, %navigator, speed 0",
+        eventmessage = "button3, toggleview_trigger, disable")
+
+wandtrigger (sphere ="0 0 0 1000", initstate=off, name=view-ground_trigger,
+	eventmessage = "button3, go_ground_sound, play",
+	eventmessage = "button3, go_ground_sound, stop, 2",
+        eventmessage = "button3, small_keyframe, off",
+        eventmessage = "button3, small_keyframe2, off",
+        eventmessage = "button3, small_keyframe, reset",
+        eventmessage = "button3, small_keyframe2, reset",
+        eventmessage = "button3, view-high_trigger, enable, 2",
+        eventmessage = "button3, view-ground_trigger, disable, 2",
+        eventmessage = "button3, %navigator, fly off",
+       #enable navigation after owl finishes talking. If I want to
+       #enable after blue button is pressed, then remove delay 95 
+        eventmessage = "button3, %navigator, speed 1.5",
+        eventmessage = "button3, toggleview_trigger, enable")
+
+# --- Trigger for resetting position in front of owl
+wandtrigger (sphere ="0 0 0 1000", initstate=on, name=reset_position_trigger,
+	eventmessage = "button4, %navigator, position -0.735 4.011 -0.1 180")
+
+
+# --- Box where cubes get added to pool again
+# -   box = lowleftX lowleftdepth lowleftheight uprightX uprightdepth uprightheight
+#exact box around pool: wandtrigger (box ="-3.0 -3 0 2.2 2 10",
+#larger box around pool: wandtrigger (box ="-4.0 -3 0 3 3 10",
+
+wandtrigger (box ="-3.0 -3 0 2.2 2 10",
+	eventmessage = "button2, drop_sound, play",
+	eventmessage = "button2, drop_sound, stop, 2",
+	eventmessage = "button2, yellow_multiswitch, disableactive",
+	eventmessage = "button2, orange_multiswitch, disableactive",
+	eventmessage = "button2, blue_multiswitch, disableactive",
+	eventmessage = "button2, grey_multiswitch, disableactive",
+	eventmessage = "button2, red_multiswitch, disableactive",
+	eventmessage = "button2, green_multiswitch, disableactive")
+
+
+
+# --- Define sounds
+sound(name=ambient_bird_sound, duration=23.06, loop=1, file="ambient_birds.wav")
+sound(name=pick_sound, duration=0.201, file="fdbck_pick_block.wav", maxdistance=-1, amplitude=0.5)
+sound(name=drop_sound, duration=0.069, file="fdbck_drop_block.wav", maxdistance=-1, amplitude=0.5)
+sound(name=go_high_sound, duration=1.743, file="fdbck_go_high.wav", maxdistance=-1, amplitude=0.5)
+sound(name=go_ground_sound, duration=1.164, file="fdbck_go_ground.wav", maxdistance=-1, amplitude=0.5)
+
+sound(name=forbidden_adjacent_block_sound, duration=2.022, file="fdbck_forbidden_adjacent_block.wav", amplitude=0.5)
+sound(name=forbidden_onbench_sound, duration=1.936, file="fdbck_forbidden_on_bench.wav", amplitude=0.5)
+sound(name=forbidden_next2fence_sound, duration=1.728, file="fdbck_forbidden_next2fence.wav", amplitude=0.5)
+sound(name=forbidden_on_footpath_sound, duration=2.206, file="fdbck_forbidden_on_path.wav", amplitude=0.5)
+sound(name=kids_clapping_snd, duration=5.576, file="fdbck_kids_clapping.wav")
+
+sound(name=fountain_snd, duration=4.2, loop=1, file="fountain_loop3.wav")
+
+sound(name=owl_01_welcome_sound, duration=21.068, file="owl_01_welcome.wav")
+sound(name=owl_02_sound, duration=11.946, file="owl_02_unfortunately.wav")
+sound(name=owl_03_sound, duration=12.517, file="owl_03_soherewego.wav")
+sound(name=owl_04_sound, duration=29.824, file="owl_04_woo.wav")
+sound(name=owl_05a_sound, duration=15.633, file="owl_05_doyousee.wav")
+sound(name=owl_05b_sound, duration=16.874, file="owl_05_youcanpoint.wav")
+sound(name=owl_06_sound, duration=10.689, file="owl_06_whenyouare.wav")
+sound(name=owl_07_sound, duration=28.18, file="owl_07_tochange.wav")
+sound(name=owl_08_sound, duration=15.798, file="owl_08_youcanmake.wav")
+sound(name=owl_09_sound, duration=13.025, file="owl_09_thesesigns.wav")
+sound(name=owl_10_sound, duration=4.932, file="owl_10_whenyouarefinished.wav")
+sound(name=owl_11_sound, duration=2.765, file="owl_11_readygetsetgo.wav")
+
+#DIMI
+#object(file=beam.iv, attach=on)
+#transform(attach=on)
+#{
+#object(file=righthand.boy.iv, scale=0.3)
+#}
+#transform(attach=allhead)
+#{
+#object(file=boy.body.iv, scale=0.3)
+#}
